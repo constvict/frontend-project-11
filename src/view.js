@@ -1,19 +1,20 @@
 import onChange from 'on-change';
 
-export default (state, elements) => onChange(state, (path, value) => {
-  if (path === 'form.error' && value === 'invalid') {
+export default (state, elements, i18n) => onChange(state, (path, value) => {
+  if (path === 'form.error' && value === 'invalidURL') {
     elements.feedback.classList.remove('text-success');
     elements.feedback.classList.add('text-danger');
     elements.input.classList.add('is-invalid');
-    elements.feedback.textContent = 'Ссылка должна быть валидным URL';
+    elements.feedback.textContent = i18n.t('messages.errors.invalidURL');
     elements.form.reset();
     elements.input.focus();
   }
-  if (path === 'form.error' && value === 'exists') {
+
+  if (path === 'form.error' && value === 'alreadyExists') {
     elements.feedback.classList.remove('text-success');
     elements.feedback.classList.add('text-danger');
     elements.input.classList.add('is-invalid');
-    elements.feedback.textContent = 'RSS уже существует';
+    elements.feedback.textContent = i18n.t('messages.errors.alreadyExists');
     elements.form.reset();
     elements.input.focus();
   }
@@ -22,7 +23,7 @@ export default (state, elements) => onChange(state, (path, value) => {
     elements.feedback.classList.remove('text-danger');
     elements.feedback.classList.add('text-success');
     elements.input.classList.remove('is-invalid');
-    elements.feedback.textContent = 'RSS успешно загружен';
+    elements.feedback.textContent = i18n.t('messages.success');
     elements.form.reset();
     elements.input.focus();
   }
