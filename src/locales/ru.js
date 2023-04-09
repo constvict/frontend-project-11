@@ -11,6 +11,7 @@ export default {
         alreadyExists: 'RSS уже существует',
         networkError: 'Ошибка подключения',
         parsingError: 'Ошибка чтения RSS',
+        updateError: 'Ошибка обновления ленты постов',
       },
     },
     ui: {

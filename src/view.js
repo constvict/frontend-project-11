@@ -2,7 +2,7 @@ import onChange from 'on-change';
 
 const handleProcessState = (elements, processState, i18n) => {
   switch (processState) {
-    case 'received':
+    case 'response':
       elements.feedback.classList.remove('text-danger');
       elements.feedback.classList.add('text-success');
       elements.input.classList.remove('is-invalid');
@@ -11,11 +11,8 @@ const handleProcessState = (elements, processState, i18n) => {
       elements.form.reset();
       elements.input.focus();
       break;
-    case 'sending':
+    case 'request':
       elements.submitButton.disabled = true;
-      break;
-    case 'filling':
-      elements.submitButton.textContent = false;
       break;
     case 'error':
       elements.submitButton.disabled = false;

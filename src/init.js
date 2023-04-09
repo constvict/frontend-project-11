@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import i18next from 'i18next';
 import axios from 'axios';
-import { uniqueId } from 'lodash';
+import { differenceBy, uniqueId } from 'lodash';
 import watcher from './view.js';
 import resources from './locales/index.js';
 import domParser from './parser.js';
@@ -49,12 +49,11 @@ export default () => {
 
   const initalState = {
     form: {
-      processState: 'filling',
+      processState: '',
       processError: null,
     },
     feeds: [],
     posts: [],
-    addedURLs: [],
   };
 
   const state = watcher(initalState, elements, i18n);
@@ -62,29 +61,32 @@ export default () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    state.form.processState = 'sending';
+    state.form.processState = 'request';
     state.form.processError = null;
 
     const formData = new FormData(event.target);
-    const inputValue = formData.get('url').trim();
+    const url = formData.get('url').trim();
     const schema = yup
       .string()
       .required()
       .url()
-      .notOneOf(state.addedURLs);
+      .notOneOf(state.feeds.map((feed) => feed.link));
 
-    schema.validate(inputValue, { abortEarly: false }).then(() => {
-      const proxyLink = proxy(inputValue);
+    schema.validate(url, { abortEarly: false }).then(() => {
+      const proxyLink = proxy(url);
       axios
         .get(proxyLink)
         .then((response) => {
           const { feed, posts } = domParser(response);
+
           feed.id = uniqueId();
+          feed.link = url;
           addPostsId(posts, feed.id);
+
           state.feeds.unshift(feed);
           state.posts.unshift(...posts);
-          state.addedURLs.push(inputValue);
-          state.form.processState = 'received';
+
+          state.form.processState = 'response';
           state.form.processError = null;
         })
         .catch((err) => {
@@ -102,5 +104,26 @@ export default () => {
     });
   };
 
+  const checkUpdates = () => {
+    const promises = state.feeds.map(({ link, id }) => {
+      const promise = axios.get(proxy(link));
+      return promise
+        .then((response) => {
+          const { posts } = domParser(response);
+
+          const newPosts = differenceBy(posts, state.posts, 'link');
+          addPostsId(newPosts, id);
+
+          state.posts = newPosts.concat(state.posts);
+        })
+        .catch(() => {
+          state.form.processState = 'error';
+          state.form.processError = 'updateError';
+        });
+    });
+    Promise.all(promises).finally(() => setTimeout(() => checkUpdates(), 5000));
+  };
+
   elements.form.addEventListener('submit', handleSubmit);
+  checkUpdates();
 };
