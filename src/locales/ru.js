@@ -10,7 +10,7 @@ export default {
         invalidURL: 'Ссылка должна быть валидным URL',
         alreadyExists: 'RSS уже существует',
         networkError: 'Ошибка подключения',
-        parsingError: 'Ошибка чтения RSS',
+        parsingError: 'Ресурс не содержит валидный RSS',
         updateError: 'Ошибка обновления ленты постов',
       },
     },
