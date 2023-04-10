@@ -165,6 +165,7 @@ export default (state, elements, i18n) => onChange(state, (path, value) => {
       break;
     case 'uiState.currentPostId':
       renderModal(state, elements);
+      break;
     default:
       break;
   }

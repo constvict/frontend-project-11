@@ -115,7 +115,7 @@ export default () => {
       state.uiState.viewedPostsIds.push(targetId);
       state.uiState.currentPostId = targetId;
     }
-  }
+  };
 
   const checkUpdates = () => {
     const promises = state.feeds.map(({ link, id }) => {
