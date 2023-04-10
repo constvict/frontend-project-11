@@ -9,7 +9,7 @@ export default {
       errors: {
         invalidURL: 'Ссылка должна быть валидным URL',
         alreadyExists: 'RSS уже существует',
-        networkError: 'Ошибка подключения',
+        networkError: 'Ошибка сети',
         parsingError: 'Ресурс не содержит валидный RSS',
         updateError: 'Ошибка обновления ленты постов',
       },
