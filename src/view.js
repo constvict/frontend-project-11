@@ -69,7 +69,7 @@ const renderFeeds = (elements, feeds, i18n) => {
   elements.feeds.append(card);
 };
 
-const renderPosts = (elements, posts, i18n) => {
+const renderPosts = (state, elements, i18n) => {
   elements.posts.innerHTML = '';
 
   const card = document.createElement('div');
@@ -84,7 +84,7 @@ const renderPosts = (elements, posts, i18n) => {
   const list = document.createElement('ul');
   list.classList.add('list-group', 'border-0', 'rounded-0');
 
-  posts.forEach((post) => {
+  state.posts.forEach((post) => {
     const listItem = document.createElement('li');
     listItem.classList.add(
       'list-group-item',
@@ -96,9 +96,14 @@ const renderPosts = (elements, posts, i18n) => {
     );
 
     const postLink = document.createElement('a');
-    postLink.classList.add('fw-bold');
+    if (state.uiState.viewedPostsIds.includes(post.id)) {
+      postLink.classList.add('fw-normal', 'link-secondary');
+    } else {
+      postLink.classList.add('fw-bold');
+    }
     postLink.setAttribute('href', post.link);
     postLink.setAttribute('data-id', post.id);
+    postLink.setAttribute('data-feedid', post.feedId);
     postLink.setAttribute('target', '_blank');
     postLink.setAttribute('rel', 'noopener noreferrer');
     postLink.textContent = post.title;
@@ -107,6 +112,9 @@ const renderPosts = (elements, posts, i18n) => {
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     button.setAttribute('type', 'button');
     button.setAttribute('data-id', post.id);
+    button.setAttribute('data-feedid', post.feedId);
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#modal');
     button.textContent = i18n.t('ui.button');
     listItem.append(postLink, button);
     list.append(listItem);
@@ -116,6 +124,26 @@ const renderPosts = (elements, posts, i18n) => {
   card.append(cardBody, list);
 
   elements.posts.append(card);
+};
+
+const renderViewedPosts = (viewedPostsIds) => {
+  viewedPostsIds.forEach((id) => {
+    const postLink = document.querySelector(`a[data-id="${id}"]`);
+    postLink.classList.remove('fw-bold');
+    postLink.classList.add('fw-normal', 'link-secondary');
+  });
+};
+
+const renderModal = (state, elements) => {
+  const currentPost = state.posts.find((post) => post.id === state.uiState.currentPostId);
+
+  const modalTitle = elements.modal.querySelector('.modal-title');
+  const modalBody = elements.modal.querySelector('.modal-body');
+  const modalLink = elements.modal.querySelector('.full-article');
+
+  modalTitle.textContent = currentPost.title;
+  modalBody.textContent = currentPost.description;
+  modalLink.setAttribute('href', currentPost.link);
 };
 
 export default (state, elements, i18n) => onChange(state, (path, value) => {
@@ -130,8 +158,13 @@ export default (state, elements, i18n) => onChange(state, (path, value) => {
       renderFeeds(elements, value, i18n);
       break;
     case 'posts':
-      renderPosts(elements, value, i18n);
+      renderPosts(state, elements, i18n);
       break;
+    case 'uiState.viewedPostsIds':
+      renderViewedPosts(value);
+      break;
+    case 'uiState.currentPostId':
+      renderModal(state, elements);
     default:
       break;
   }

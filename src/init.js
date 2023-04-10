@@ -45,12 +45,17 @@ export default () => {
     submitButton: document.querySelector('button[type="submit"]'),
     feeds: document.querySelector('.feeds'),
     posts: document.querySelector('.posts'),
+    modal: document.querySelector('#modal'),
   };
 
   const initalState = {
     form: {
       processState: '',
       processError: null,
+    },
+    uiState: {
+      viewedPostsIds: [],
+      currentPostId: '',
     },
     feeds: [],
     posts: [],
@@ -104,6 +109,14 @@ export default () => {
     });
   };
 
+  const handleClick = (event) => {
+    const targetId = event.target.dataset.id;
+    if (targetId) {
+      state.uiState.viewedPostsIds.push(targetId);
+      state.uiState.currentPostId = targetId;
+    }
+  }
+
   const checkUpdates = () => {
     const promises = state.feeds.map(({ link, id }) => {
       const promise = axios.get(proxy(link));
@@ -113,7 +126,6 @@ export default () => {
 
           const newPosts = differenceBy(posts, state.posts, 'link');
           addPostsId(newPosts, id);
-
           state.posts = newPosts.concat(state.posts);
         })
         .catch(() => {
@@ -121,9 +133,10 @@ export default () => {
           state.form.processError = 'updateError';
         });
     });
-    Promise.all(promises).finally(() => setTimeout(() => checkUpdates(), 5000));
+    Promise.all(promises).finally(() => setTimeout(() => checkUpdates(), 5000000));
   };
 
   elements.form.addEventListener('submit', handleSubmit);
+  elements.posts.addEventListener('click', handleClick);
   checkUpdates();
 };
