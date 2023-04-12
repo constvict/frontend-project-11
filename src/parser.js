@@ -8,15 +8,11 @@ const getFeedData = (document) => {
 
 const getPostData = (document) => {
   const items = document.querySelectorAll('item');
-  const postData = [];
-  items.forEach((item) => {
-    const post = {
-      title: item.querySelector('title').textContent,
-      description: item.querySelector('description').textContent,
-      link: item.querySelector('link').textContent,
-    };
-    postData.push(post);
-  });
+  const postData = [...items].map((item) => ({
+    title: item.querySelector('title').textContent,
+    description: item.querySelector('description').textContent,
+    link: item.querySelector('link').textContent,
+  }));
   return postData;
 };
 
@@ -24,7 +20,7 @@ export default (response) => {
   const parser = new DOMParser();
   const parsedXml = parser.parseFromString(response.data.contents, 'application/xml');
   if (parsedXml.querySelector('parsererror')) {
-    const error = new Error();
+    const error = new Error(parsedXml.querySelector('parsererror').textContent);
     error.name = 'parsingError';
     throw error;
   }

@@ -6,14 +6,6 @@ import watcher from './view.js';
 import resources from './locales/index.js';
 import domParser from './parser.js';
 
-const i18n = i18next.createInstance();
-
-i18n.init({
-  lng: 'ru',
-  debug: false,
-  resources,
-});
-
 const proxy = (link) => {
   const url = new URL('https://allorigins.hexlet.app/get');
   url.searchParams.set('disableCache', 'true');
@@ -22,13 +14,23 @@ const proxy = (link) => {
 };
 
 const addPostsId = (posts, feedId) => {
-  posts.forEach((post) => {
-    post.feedId = feedId;
-    post.id = uniqueId();
-  });
+  const newPosts = posts.map((post) => ({
+    ...post,
+    feedId,
+    id: uniqueId(),
+  }));
+  return newPosts;
 };
 
 export default () => {
+  const i18n = i18next.createInstance();
+
+  i18n.init({
+    lng: 'ru',
+    debug: false,
+    resources,
+  });
+
   yup.setLocale({
     string: {
       url: i18n.t('invalidURL'),
@@ -50,8 +52,8 @@ export default () => {
 
   const initalState = {
     form: {
-      processState: '',
-      processError: null,
+      requestState: '',
+      validationState: null,
     },
     uiState: {
       viewedPostsIds: [],
@@ -66,8 +68,8 @@ export default () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    state.form.processState = 'request';
-    state.form.processError = null;
+    state.form.requestState = 'request';
+    state.form.validationState = null;
 
     const formData = new FormData(event.target);
     const url = formData.get('url').trim();
@@ -86,38 +88,34 @@ export default () => {
 
           feed.id = uniqueId();
           feed.link = url;
-          addPostsId(posts, feed.id);
+          const postsWithIds = addPostsId(posts, feed.id);
 
           state.feeds.unshift(feed);
-          state.posts.unshift(...posts);
+          state.posts.unshift(...postsWithIds);
 
-          state.form.processState = 'response';
-          state.form.processError = null;
+          state.form.requestState = 'response';
+          state.form.validationState = null;
         })
         .catch((err) => {
-          if (err.name === 'parsingError') {
-            state.form.processState = 'error';
-            state.form.processError = 'parsingError';
-          } else {
-            state.form.processState = 'error';
-            state.form.processError = 'networkError';
-          }
+          state.form.requestState = 'error';
+          state.form.validationState = err.name === 'parsingError' ? 'parsingError' : 'networkError';
         });
     }).catch((err) => {
-      state.form.processState = 'error';
-      state.form.processError = err.message;
+      state.form.requestState = 'error';
+      state.form.validationState = err.message;
     });
   };
 
   const handleClick = (event) => {
     const targetId = event.target.dataset.id;
-    if (targetId) {
+    if (targetId && !state.uiState.viewedPostsIds.includes(targetId)) {
       state.uiState.viewedPostsIds.push(targetId);
       state.uiState.currentPostId = targetId;
     }
   };
 
   const checkUpdates = () => {
+    const updateDelay = 5000;
     const promises = state.feeds.map(({ link, id }) => {
       const promise = axios.get(proxy(link));
       return promise
@@ -125,15 +123,15 @@ export default () => {
           const { posts } = domParser(response);
 
           const newPosts = differenceBy(posts, state.posts, 'link');
-          addPostsId(newPosts, id);
-          state.posts = newPosts.concat(state.posts);
+          const newPostsWithIds = addPostsId(newPosts, id);
+          state.posts = newPostsWithIds.concat(state.posts);
         })
         .catch(() => {
-          state.form.processState = 'error';
-          state.form.processError = 'updateError';
+          state.form.requestState = 'error';
+          state.form.validationState = 'updateError';
         });
     });
-    Promise.all(promises).finally(() => setTimeout(() => checkUpdates(), 5000000));
+    Promise.all(promises).finally(() => setTimeout(() => checkUpdates(), updateDelay));
   };
 
   elements.form.addEventListener('submit', handleSubmit);

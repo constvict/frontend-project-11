@@ -27,13 +27,19 @@ You can access a live demo of the app [here](https://frontend-project-11-n1znwz7
 
 ## Getting started
 
-To get started with the project, follow these steps:
+#### Prerequisites
+
+* Node js 
+  ```sh 
+  Node js 18 version
+  ```
+#### Installation
 
 1. Clone the repository:
    ```sh
    git clone https://github.com/constvict/frontend-project-11.git
 2. Install the dependencies:
-     ```sh
+   ```sh
    make install
 3. Start the development server:
      ```sh

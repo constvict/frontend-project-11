@@ -1,7 +1,7 @@
 import onChange from 'on-change';
 
-const handleProcessState = (elements, processState, i18n) => {
-  switch (processState) {
+const handleRequestState = (elements, requestState, i18n) => {
+  switch (requestState) {
     case 'response':
       elements.feedback.classList.remove('text-danger');
       elements.feedback.classList.add('text-success');
@@ -18,16 +18,16 @@ const handleProcessState = (elements, processState, i18n) => {
       elements.submitButton.disabled = false;
       break;
     default:
-      throw new Error(`Unknown process state: ${processState}`);
+      throw new Error(`Unknown request state: ${requestState}`);
   }
 };
 
-const handleProcessError = (elements, processError, i18n) => {
+const handleValidationState = (elements, validationState, i18n) => {
   elements.feedback.classList.remove('text-success');
   elements.feedback.classList.add('text-danger');
   elements.input.classList.add('is-invalid');
-  if (processError) {
-    elements.feedback.textContent = i18n.t(`messages.errors.${processError}`);
+  if (validationState) {
+    elements.feedback.textContent = i18n.t(`messages.errors.${validationState}`);
   }
 };
 
@@ -148,11 +148,11 @@ const renderModal = (state, elements) => {
 
 export default (state, elements, i18n) => onChange(state, (path, value) => {
   switch (path) {
-    case 'form.processState':
-      handleProcessState(elements, value, i18n);
+    case 'form.requestState':
+      handleRequestState(elements, value, i18n);
       break;
-    case 'form.processError':
-      handleProcessError(elements, value, i18n);
+    case 'form.validationState':
+      handleValidationState(elements, value, i18n);
       break;
     case 'feeds':
       renderFeeds(elements, value, i18n);
