@@ -37,6 +37,7 @@ export default () => {
     },
     mixed: {
       notOneOf: i18n.t('alreadyExists'),
+      required: i18n.t('invalidURL'),
     },
   });
 
