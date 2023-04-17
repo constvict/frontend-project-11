@@ -78,11 +78,13 @@ export default () => {
     const trimUrl = (url) => {
       const lastSlashIndex = url.lastIndexOf('/');
       const lastDotIndex = url.lastIndexOf('.');
-    
+
       const extension = url.slice(lastDotIndex);
-    
-      const endIndex = (extension && extension.length <= 4) ? lastDotIndex + extension.length : lastSlashIndex + 1;
-    
+
+      const endIndex = (extension && extension.length <= 4)
+        ? lastDotIndex + extension.length
+        : lastSlashIndex + 1;
+
       return url.slice(0, endIndex);
     };
 
