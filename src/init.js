@@ -78,10 +78,11 @@ export default () => {
     const trimUrl = (url) => {
       const lastSlashIndex = url.lastIndexOf('/');
       const lastDotIndex = url.lastIndexOf('.');
-
-      const hasRssOrXmlExtension = url.endsWith('.rss') || url.endsWith('.xml');
-      const endIndex = hasRssOrXmlExtension ? lastDotIndex + 4 : lastSlashIndex + 1;
-
+    
+      const extension = url.slice(lastDotIndex);
+    
+      const endIndex = (extension && extension.length <= 4) ? lastDotIndex + extension.length : lastSlashIndex + 1;
+    
       return url.slice(0, endIndex);
     };
 
