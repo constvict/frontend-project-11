@@ -72,7 +72,19 @@ export default () => {
     state.form.validationState = null;
 
     const formData = new FormData(event.target);
-    const url = formData.get('url').trim();
+    const rawUrl = formData.get('url').trim();
+
+    const trimUrl = (url) => {
+      const lastSlashIndex = url.lastIndexOf('/');
+      const lastDotIndex = url.lastIndexOf('.');
+
+      const hasRssOrXmlExtension = url.endsWith('.rss') || url.endsWith('.xml');
+      const endIndex = hasRssOrXmlExtension ? lastDotIndex + 4 : lastSlashIndex + 1;
+
+      return url.slice(0, endIndex);
+    };
+
+    const url = trimUrl(rawUrl);
     const schema = yup
       .string()
       .required()

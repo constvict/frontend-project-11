@@ -6,7 +6,7 @@ RSS Reader is a web application that allows users to subscribe to RSS feeds and 
 
 ## Demo
 
-You can access a live demo of the app [here](https://frontend-project-11-n1znwz7bs-constvict.vercel.app/).
+You can access a live demo of the app [here](https://frontend-project-11-mu-mocha.vercel.app/).
 
 ## Features
 
