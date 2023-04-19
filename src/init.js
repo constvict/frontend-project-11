@@ -81,9 +81,12 @@ export default () => {
 
       const extension = url.slice(lastDotIndex);
 
-      const endIndex = (extension && extension.length <= 4)
+      const maxExtensionLength = 4;
+      const slashIndexAdjustment = 1;
+
+      const endIndex = (extension && extension.length <= maxExtensionLength)
         ? lastDotIndex + extension.length
-        : lastSlashIndex + 1;
+        : lastSlashIndex + slashIndexAdjustment;
 
       return url.slice(0, endIndex);
     };
