@@ -16,9 +16,9 @@ const getPostData = (document) => {
   return postData;
 };
 
-export default (response) => {
+export default (data) => {
   const parser = new DOMParser();
-  const parsedXml = parser.parseFromString(response.data.contents, 'application/xml');
+  const parsedXml = parser.parseFromString(data, 'application/xml');
   if (parsedXml.querySelector('parsererror')) {
     const error = new Error(parsedXml.querySelector('parsererror').textContent);
     error.name = 'parsingError';
