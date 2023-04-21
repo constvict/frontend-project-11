@@ -1,10 +1,11 @@
 import * as yup from 'yup';
 import i18next from 'i18next';
 import axios from 'axios';
-import { differenceBy, some, uniqueId } from 'lodash';
+import { differenceBy, uniqueId } from 'lodash';
 import watcher from './view.js';
 import resources from './locales/index.js';
 import domParser from './parser.js';
+import 'bootstrap';
 
 const UPDATE_DELAY_MS = 5000;
 
@@ -93,7 +94,8 @@ export default () => {
             const { feed, posts } = domParser(response.data.contents);
 
             const { title, description } = feed;
-            const isDuplicate = some(state.feeds, { title, description });
+            const isDuplicate = state.feeds
+              .some((f) => f.title === title && f.description === description);
 
             if (isDuplicate) {
               state.form.requestState = 'error';
