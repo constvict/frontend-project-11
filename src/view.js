@@ -2,6 +2,9 @@ import onChange from 'on-change';
 
 const handleRequestState = (elements, requestState, i18n) => {
   switch (requestState) {
+    case 'filling':
+      elements.submitButton.disabled = false;
+      break;
     case 'response':
       elements.feedback.classList.remove('text-danger');
       elements.feedback.classList.add('text-success');
@@ -16,18 +19,19 @@ const handleRequestState = (elements, requestState, i18n) => {
       break;
     case 'error':
       elements.submitButton.disabled = false;
+      elements.input.focus();
       break;
     default:
       throw new Error(`Unknown request state: ${requestState}`);
   }
 };
 
-const handleValidationState = (elements, validationState, i18n) => {
+const renderErrors = (elements, error, i18n) => {
   elements.feedback.classList.remove('text-success');
   elements.feedback.classList.add('text-danger');
   elements.input.classList.add('is-invalid');
-  if (validationState) {
-    elements.feedback.textContent = i18n.t(`messages.errors.${validationState}`);
+  if (error) {
+    elements.feedback.textContent = i18n.t(`messages.errors.${error}`);
   }
 };
 
@@ -151,8 +155,8 @@ export default (state, elements, i18n) => onChange(state, (path, value) => {
     case 'form.requestState':
       handleRequestState(elements, value, i18n);
       break;
-    case 'form.validationState':
-      handleValidationState(elements, value, i18n);
+    case 'form.errors':
+      renderErrors(elements, value, i18n);
       break;
     case 'feeds':
       renderFeeds(elements, value, i18n);

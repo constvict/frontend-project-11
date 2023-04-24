@@ -57,8 +57,8 @@ export default () => {
 
   const initalState = {
     form: {
-      requestState: '',
-      validationState: null,
+      requestState: 'filling',
+      errors: null,
     },
     uiState: {
       viewedPostsIds: [],
@@ -74,7 +74,7 @@ export default () => {
     event.preventDefault();
 
     state.form.requestState = 'request';
-    state.form.validationState = null;
+    state.form.errors = null;
 
     const formData = new FormData(event.target);
     const url = formData.get('url').trim();
@@ -91,7 +91,8 @@ export default () => {
         axios
           .get(proxyLink)
           .then((response) => {
-            const { feed, posts } = domParser(response.data.contents);
+            const responseDataContents = response.data.contents;
+            const { feed, posts } = domParser(responseDataContents);
 
             const { title, description } = feed;
             const isDuplicate = state.feeds
@@ -99,7 +100,7 @@ export default () => {
 
             if (isDuplicate) {
               state.form.requestState = 'error';
-              state.form.validationState = 'alreadyExists';
+              state.form.errors = 'alreadyExists';
               return;
             }
 
@@ -111,15 +112,15 @@ export default () => {
             state.posts.unshift(...postsWithIds);
 
             state.form.requestState = 'response';
-            state.form.validationState = null;
+            state.form.errors = null;
           })
           .catch((err) => {
             state.form.requestState = 'error';
-            state.form.validationState = err.name === 'parsingError' ? 'parsingError' : 'networkError';
+            state.form.errors = err.name === 'parsingError' ? 'parsingError' : 'networkError';
           });
       }).catch((err) => {
         state.form.requestState = 'error';
-        state.form.validationState = err.message;
+        state.form.errors = err.message;
       });
   };
 
@@ -136,7 +137,8 @@ export default () => {
       const promise = axios.get(proxy(link));
       return promise
         .then((response) => {
-          const { posts } = domParser(response.data.contents);
+          const responseDataContents = response.data.contents;
+          const { posts } = domParser(responseDataContents);
 
           const newPosts = differenceBy(posts, state.posts, 'link');
           const newPostsWithIds = addPostsId(newPosts, id);
@@ -144,10 +146,10 @@ export default () => {
         })
         .catch(() => {
           state.form.requestState = 'error';
-          state.form.validationState = 'updateError';
+          state.form.errors = 'updateError';
         });
     });
-    Promise.all(promises).finally(() => setTimeout(() => checkUpdates(), UPDATE_DELAY_MS));
+    Promise.all(promises).finally(() => setTimeout(checkUpdates, UPDATE_DELAY_MS));
   };
 
   elements.form.addEventListener('submit', handleSubmit);
