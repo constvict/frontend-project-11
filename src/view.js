@@ -1,7 +1,7 @@
 import onChange from 'on-change';
 
-const handleRequestState = (elements, requestState, i18n) => {
-  switch (requestState) {
+const handleFormStatus = (elements, status, i18n) => {
+  switch (status) {
     case 'filling':
       elements.submitButton.disabled = false;
       break;
@@ -22,7 +22,7 @@ const handleRequestState = (elements, requestState, i18n) => {
       elements.input.focus();
       break;
     default:
-      throw new Error(`Unknown request state: ${requestState}`);
+      throw new Error(`Unknown request state: ${status}`);
   }
 };
 
@@ -152,8 +152,8 @@ const renderModal = (state, elements) => {
 
 export default (state, elements, i18n) => onChange(state, (path, value) => {
   switch (path) {
-    case 'form.requestState':
-      handleRequestState(elements, value, i18n);
+    case 'form.status':
+      handleFormStatus(elements, value, i18n);
       break;
     case 'form.errors':
       renderErrors(elements, value, i18n);

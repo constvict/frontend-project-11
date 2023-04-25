@@ -57,7 +57,7 @@ export default () => {
 
   const initalState = {
     form: {
-      requestState: 'filling',
+      status: 'filling',
       errors: null,
     },
     uiState: {
@@ -73,7 +73,7 @@ export default () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    state.form.requestState = 'request';
+    state.form.status = 'request';
     state.form.errors = null;
 
     const formData = new FormData(event.target);
@@ -94,32 +94,22 @@ export default () => {
             const responseDataContents = response.data.contents;
             const { feed, posts } = domParser(responseDataContents);
 
-            const { title, description } = feed;
-            const isDuplicate = state.feeds
-              .some((f) => f.title === title && f.description === description);
-
-            if (isDuplicate) {
-              state.form.requestState = 'error';
-              state.form.errors = 'alreadyExists';
-              return;
-            }
-
             feed.id = uniqueId();
             feed.link = url;
             const postsWithIds = addPostsId(posts, feed.id);
 
-            state.feeds.unshift(feed);
-            state.posts.unshift(...postsWithIds);
+            state.feeds = [feed, ...state.feeds];
+            state.posts = [...postsWithIds, ...state.posts];
 
-            state.form.requestState = 'response';
+            state.form.status = 'response';
             state.form.errors = null;
           })
           .catch((err) => {
-            state.form.requestState = 'error';
+            state.form.status = 'error';
             state.form.errors = err.name === 'parsingError' ? 'parsingError' : 'networkError';
           });
       }).catch((err) => {
-        state.form.requestState = 'error';
+        state.form.status = 'error';
         state.form.errors = err.message;
       });
   };
@@ -127,7 +117,7 @@ export default () => {
   const handleClick = (event) => {
     const targetId = event.target.dataset.id;
     if (targetId && !state.uiState.viewedPostsIds.includes(targetId)) {
-      state.uiState.viewedPostsIds.push(targetId);
+      state.uiState.viewedPostsIds = state.uiState.viewedPostsIds.concat(targetId);
       state.uiState.currentPostId = targetId;
     }
   };
@@ -145,7 +135,7 @@ export default () => {
           state.posts = newPostsWithIds.concat(state.posts);
         })
         .catch(() => {
-          state.form.requestState = 'error';
+          state.form.status = 'error';
           state.form.errors = 'updateError';
         });
     });
