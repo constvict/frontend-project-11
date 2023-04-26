@@ -17,7 +17,7 @@ const proxy = (link) => {
   return proxyLink;
 };
 
-const addPostsId = (posts, feedId) => {
+const getPostsWithIds = (posts, feedId) => {
   const newPosts = posts.map((post) => ({
     ...post,
     feedId,
@@ -96,7 +96,7 @@ export default () => {
 
             feed.id = uniqueId();
             feed.link = url;
-            const postsWithIds = addPostsId(posts, feed.id);
+            const postsWithIds = getPostsWithIds(posts, feed.id);
 
             state.feeds = [feed, ...state.feeds];
             state.posts = [...postsWithIds, ...state.posts];
@@ -131,7 +131,7 @@ export default () => {
           const { posts } = domParser(responseDataContents);
 
           const newPosts = differenceBy(posts, state.posts, 'link');
-          const newPostsWithIds = addPostsId(newPosts, id);
+          const newPostsWithIds = getPostsWithIds(newPosts, id);
           state.posts = newPostsWithIds.concat(state.posts);
         })
         .catch(() => {
